@@ -392,6 +392,67 @@ def index():
                            conjuntos_relacionados=conjuntos_relacionados,
                            categoria_atual=categoria)
 
+@main_bp.route('/catalogo')
+def catalogo():
+    categoria = request.args.get('categoria', '').strip().casefold()
+    produtos = Produto.query.order_by(Produto.nome.asc()).all()
+    if categoria:
+        produtos = [produto for produto in produtos if categoria_por_nome(produto.nome) == categoria]
+
+    agrupados = {}
+    for produto in produtos:
+        chave = chave_nome_produto(produto.nome)
+        if not chave:
+            agrupados.setdefault(f'__sem_nome_{len(agrupados)}', produto)
+            continue
+        agrupados.setdefault(chave, produto)
+
+    produtos_ordenados = list(agrupados.values())
+    page = max(1, request.args.get('page', 1, type=int))
+    per_page = 16
+    total_paginas = max(1, (len(produtos_ordenados) + per_page - 1) // per_page)
+    page = min(page, total_paginas)
+    inicio = (page - 1) * per_page
+    produtos_paginados = produtos_ordenados[inicio:inicio + per_page]
+    produtos_por_referencia = {
+        str(produto.codigo or '').strip().casefold(): produto
+        for produto in Produto.query.all()
+        if str(produto.codigo or '').strip()
+    }
+    conjuntos_relacionados = {}
+    for produto in produtos_paginados:
+        if not produto.eh_conjunto or not produto.referencia_conjunto:
+            continue
+        relacionado = produtos_por_referencia.get(produto.referencia_conjunto.strip().casefold())
+        if relacionado and relacionado.id != produto.id:
+            conjuntos_relacionados[produto.id] = {
+                'id': relacionado.id,
+                'codigo': relacionado.codigo,
+                'nome': relacionado.nome,
+                'imagem': url_for('static', filename=relacionado.imagem_url),
+                'variantes': variantes_com_cor_hex(variantes_do_produto(relacionado)),
+            }
+
+    imagens_site = {chave: imagem_url for chave, (_, imagem_url) in IMAGENS_SITE_PADRAO.items()}
+    imagens_site.update({imagem.chave: imagem.imagem_url for imagem in ImagemSite.query.all()})
+    return render_template(
+        'catalogo.html',
+        produtos=type('PaginaProdutos', (), {
+            'items': produtos_paginados,
+            'page': page,
+            'has_prev': page > 1,
+            'has_next': page < total_paginas,
+            'prev_num': page - 1,
+            'next_num': page + 1,
+            'iter_pages': lambda *args, **kwargs: range(1, total_paginas + 1),
+        })(),
+        imagens_site=imagens_site,
+        usuario_logado=False,
+        nome_usuario='',
+        conjuntos_relacionados=conjuntos_relacionados,
+        categoria_atual=categoria,
+    )
+
 @main_bp.route('/api/cadastro', methods=['POST'])
 def api_cadastro():
     dados = request.get_json()
