@@ -205,6 +205,7 @@
             <div class="total-row"><strong>Subtotal de Produtos:</strong> <span id="cartSubtotal">R$ 0,00</span></div>
             <div class="total-row total-final"><strong>Valor Total:</strong> <span id="cartDrawerTotal">R$ 0,00</span></div>
 
+            <p id="catalogCartError" role="alert" aria-live="polite" style="display: none; margin: 0 0 12px; padding: 10px 12px; border: 1px solid #fecaca; border-radius: 6px; background: #fef2f2; color: #b91c1c; font-size: 12px; line-height: 1.5;"></p>
             <button class="btn-checkout" onclick="finalizarPedido()">Finalizar Pedido</button>
         </div>
     </div>
@@ -216,6 +217,18 @@
             <p id="modalMensagem" style="color: #555; font-size: 14px; line-height: 1.5; margin-bottom: 25px;"></p>
             <button onclick="fecharModalCustom()" style="background: var(--brand-purple); color: #fff; border: none; padding: 12px 25px; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%; letter-spacing: 1px; font-size: 12px;">ENTENDI</button>
         </div>
+    </div>
+
+    <div id="catalogCheckoutModal" role="dialog" aria-modal="true" aria-labelledby="catalogCheckoutTitle" style="display: none; position: fixed; inset: 0; z-index: 10006; justify-content: center; align-items: center; padding: 20px; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px);">
+        <form onsubmit="confirmarEnvioPedido(event)" style="position: relative; width: 100%; max-width: 400px; padding: 30px; border-radius: 12px; background: #fff; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+            <button type="button" aria-label="Fechar" onclick="fecharModalCheckout()" style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 16px; cursor: pointer;">✕</button>
+            <h3 id="catalogCheckoutTitle" style="margin: 0 0 15px; color: var(--brand-purple); font-size: 18px; font-weight: 800;">Finalizar Pedido</h3>
+            <label for="catalogCustomerName" style="display: block; margin-bottom: 7px; color: #333; font-size: 13px; font-weight: 700;">Seu nome</label>
+            <input id="catalogCustomerName" type="text" autocomplete="name" required maxlength="100" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+            <p id="catalogCheckoutError" role="alert" aria-live="polite" style="display: none; margin: 10px 0 0; color: #b91c1c; font-size: 12px;"></p>
+            <p style="margin: 16px 0; padding: 10px 12px; border-radius: 6px; background: #fff7ed; color: #9a3412; font-size: 12px; font-weight: 700; line-height: 1.5;">Disponibilidade do item ou tamanhos estão sujeita a confirmação</p>
+            <button type="submit" class="btn-checkout" style="width: 100%;">Enviar pedido pelo WhatsApp</button>
+        </form>
     </div>
 
     <!-- Modal de Busca em Tempo Real -->
@@ -264,6 +277,6 @@
         <span id="productImageViewerCounter" class="image-viewer-counter" aria-live="polite"></span>
     </div>
 
-    <script src="{{ url_for('static', filename='catalogo.js') }}?v=1"></script>
+    <script src="{{ url_for('static', filename='catalogo.js') }}?v=2"></script>
 </body>
 </html>

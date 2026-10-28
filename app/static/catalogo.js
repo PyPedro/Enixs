@@ -10,7 +10,7 @@ function mostrarAviso(mensagem, titulo = 'Aviso Fitness Club') {
     const msgElement = document.getElementById('modalMensagem');
     const tituloElement = document.getElementById('modalTitulo');
     if (!modal || !msgElement || !tituloElement) {
-        window.alert(mensagem);
+        console.error(`${titulo}: ${mensagem}`);
         return;
     }
     tituloElement.textContent = titulo;
@@ -32,7 +32,7 @@ function carregarCarrinho() {
         return itens;
     } catch (erro) {
         console.error('Não foi possível carregar o carrinho salvo.', erro);
-        window.alert('Não foi possível carregar o carrinho salvo neste navegador.');
+        mostrarAviso('Não foi possível carregar o carrinho salvo neste navegador.', 'Erro no carrinho');
         return [];
     }
 }
@@ -394,6 +394,11 @@ function removerItemCarrinho(cartId) {
 
 function atualizarCarrinho() {
     salvarCarrinho();
+    const erroCarrinho = document.getElementById('catalogCartError');
+    if (erroCarrinho) {
+        erroCarrinho.textContent = '';
+        erroCarrinho.style.display = 'none';
+    }
     const cartItems = document.getElementById('cartItems');
     const cartCount = document.getElementById('cartCount');
     const subtotalElement = document.getElementById('cartSubtotal');
@@ -442,19 +447,88 @@ function finalizarPedido() {
         mostrarAviso('Seu carrinho está vazio.', 'Carrinho Vazio');
         return;
     }
-    const nome = window.prompt('Qual é o seu nome?');
-    if (nome === null) return;
-    if (!nome.trim()) {
-        mostrarAviso('Informe seu nome para finalizar o pedido.', 'Nome necessário');
-        return;
-    }
     const total = itens.reduce((soma, item) =>
         soma + Number(item.preco) * Number(item.quantidade), 0);
+    if (total < 500) {
+        const erroCarrinho = document.getElementById('catalogCartError');
+        if (erroCarrinho) {
+            erroCarrinho.textContent = `O pedido mínimo é de R$ 500,00. Adicione mais ${formatarValor(500 - total)} em produtos para finalizar.`;
+            erroCarrinho.style.display = 'block';
+        }
+        return;
+    }
+
+    const erroCarrinho = document.getElementById('catalogCartError');
+    if (erroCarrinho) {
+        erroCarrinho.textContent = '';
+        erroCarrinho.style.display = 'none';
+    }
+    const campoNome = document.getElementById('catalogCustomerName');
+    const erroModal = document.getElementById('catalogCheckoutError');
+    if (campoNome) campoNome.value = '';
+    if (erroModal) {
+        erroModal.textContent = '';
+        erroModal.style.display = 'none';
+    }
+    const modal = document.getElementById('catalogCheckoutModal');
+    if (!modal) {
+        mostrarAviso('Não foi possível abrir o formulário de finalização. Atualize a página e tente novamente.', 'Erro no pedido');
+        return;
+    }
+    modal.style.display = 'flex';
+    campoNome?.focus();
+}
+
+function fecharModalCheckout() {
+    const modal = document.getElementById('catalogCheckoutModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function confirmarEnvioPedido(evento) {
+    evento.preventDefault();
+    const campoNome = document.getElementById('catalogCustomerName');
+    const nome = campoNome?.value.trim() || '';
+    const erroModal = document.getElementById('catalogCheckoutError');
+    if (!nome) {
+        if (erroModal) {
+            erroModal.textContent = 'Informe seu nome para enviar o pedido.';
+            erroModal.style.display = 'block';
+        }
+        campoNome?.focus();
+        return;
+    }
+
+    let itens;
+    try {
+        itens = JSON.parse(localStorage.getItem(CHAVE_CARRINHO_CATALOGO) || '[]');
+    } catch (erro) {
+        console.error('Não foi possível ler o carrinho para finalizar o pedido.', erro);
+        fecharModalCheckout();
+        mostrarAviso('Não foi possível ler o carrinho salvo neste navegador.', 'Erro no carrinho');
+        return;
+    }
+    if (!Array.isArray(itens) || itens.length === 0) {
+        fecharModalCheckout();
+        mostrarAviso('Seu carrinho está vazio.', 'Carrinho Vazio');
+        return;
+    }
+
+    const total = itens.reduce((soma, item) =>
+        soma + Number(item.preco) * Number(item.quantidade), 0);
+    if (total < 500) {
+        fecharModalCheckout();
+        const erroCarrinho = document.getElementById('catalogCartError');
+        if (erroCarrinho) {
+            erroCarrinho.textContent = `O pedido mínimo é de R$ 500,00. Adicione mais ${formatarValor(500 - total)} em produtos para finalizar.`;
+            erroCarrinho.style.display = 'block';
+        }
+        return;
+    }
     const linhasProdutos = itens.map(item =>
         `${Number(item.quantidade)}x ${item.nome} - Tam. ${item.tamanho} - Subtotal: ${formatarValor(Number(item.preco) * Number(item.quantidade))}`
     );
     const mensagem = [
-        `Olá, o meu nome é ${nome.trim()}. Segue o resumo do meu pedido:`,
+        `Olá, o meu nome é ${nome}. Segue o resumo do meu pedido:`,
         ...linhasProdutos,
         `Total do Pedido: ${formatarValor(total)}`
     ].join('\n');
@@ -470,6 +544,7 @@ document.getElementById('cartItems')?.addEventListener('click', evento => {
 });
 
 document.addEventListener('keydown', evento => {
+    if (evento.key === 'Escape') fecharModalCheckout();
     const modal = document.getElementById('productImageViewer');
     if (modal && modal.getAttribute('aria-hidden') !== 'true') {
         if (evento.key === 'Escape') fecharVisualizadorProduto();

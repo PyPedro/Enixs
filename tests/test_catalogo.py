@@ -26,6 +26,9 @@ def test_catalogo_e_publico_e_ignora_estoque(monkeypatch):
     assert 'catalogo.js' in html
     assert 'authModal' not in html
     assert 'ENTRAR / CADASTRAR' not in html
+    assert 'catalogCheckoutModal' in html
+    assert 'Disponibilidade do item ou tamanhos estão sujeita a confirmação' in html
+    assert 'catalogCartError' in html
     with app.app_context():
         assert Visita.query.count() == 0
 
@@ -44,3 +47,7 @@ def test_script_do_catalogo_usa_carrinho_local_e_checkout_whatsapp(monkeypatch):
     assert 'encodeURIComponent(mensagem)' in script
     assert 'https://wa.me/5581996967175?text=' in script
     assert "fetch(" not in script
+    assert 'window.prompt' not in script
+    assert 'window.alert' not in script
+    assert 'if (total < 500)' in script
+    assert 'confirmarEnvioPedido' in script
