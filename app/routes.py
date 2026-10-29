@@ -15,6 +15,7 @@ from datetime import datetime, timedelta
 
 main_bp = Blueprint('main', __name__)
 EXTENSOES_IMAGEM = {'.jpg', '.jpeg', '.png', '.webp', '.gif'}
+VALOR_MINIMO_PEDIDO = 500.00
 
 CORES_HEX = {
     'açaí': '#59213c', 'amarelo manteiga': '#f2df9b', 'azul': '#2456a6', 'azul bebê': '#a8d6ee',
@@ -1061,7 +1062,12 @@ def checkout_pagamento():
 
     itens_reservados = json.loads(pedido.itens)
     subtotal = sum(float(i['preco']) * int(i['quantidade']) for i in itens_reservados)
-    if subtotal < 330.00: return jsonify({"sucesso": False, "mensagem": "Adicione mais produtos para finalizar o pedido."})
+    if subtotal < VALOR_MINIMO_PEDIDO:
+        falta = VALOR_MINIMO_PEDIDO - subtotal
+        return jsonify({
+            "sucesso": False,
+            "mensagem": f"O pedido mínimo é de R$ {VALOR_MINIMO_PEDIDO:.2f}. Adicione mais R$ {falta:.2f} em produtos para finalizar.",
+        })
 
     dados = request.get_json(silent=True) or {}
     frete = float(dados.get('frete', 0) or 0)

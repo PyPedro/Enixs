@@ -125,7 +125,7 @@ document.addEventListener('keydown', evento => {
 // ==========================================
 // FUNÇÕES DE ALERTAS (MODAL CUSTOMIZADO)
 // ==========================================
-function mostrarAviso(mensagem, titulo = "Aviso Fitness Club") {
+function mostrarAviso(mensagem, titulo = "Aviso Enixs Jeans") {
     const modal = document.getElementById('customModal');
     const msgElement = document.getElementById('modalMensagem');
     const tituloElement = document.getElementById('modalTitulo');
@@ -713,9 +713,9 @@ function finalizarPedido() {
     }
 
     const subtotalAtual = carrinho.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
-    if (subtotalAtual < 330.00) {
-        const falta = 330.00 - subtotalAtual;
-        mostrarAviso(`Adicione mais <strong>R$ ${falta.toFixed(2).replace('.', ',')}</strong> em produtos para finalizar o pedido.`, "Pedido incompleto");
+    if (subtotalAtual < 500.00) {
+        const falta = 500.00 - subtotalAtual;
+        mostrarAviso(`O pedido mínimo é de <strong>R$ 500,00</strong>. Adicione mais <strong>R$ ${falta.toFixed(2).replace('.', ',')}</strong> em produtos para finalizar.`, "Pedido incompleto");
         return;
     }
 

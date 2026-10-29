@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fitness Club | Atacado Direto de Fábrica</title>
+    <title>Enixs Jeans | Atacado Direto de Fábrica</title>
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,7 +19,7 @@
             <a href="#lancamentos">Novidades</a>
             <a href="#loja">Comprar</a>
             <a href="#promocao">Destaques</a>
-            <a href="#sobre">A Fitness Club</a>
+            <a href="#sobre">A Enixs Jeans</a>
         </nav>
         
         <div class="nav-right">
@@ -67,7 +67,7 @@
     <section id="inicio" class="hero-section" style="background-image: url('{{ url_for('static', filename=imagens_site.banner_hero) }}');">
         <div class="hero-overlay"></div>
         <div class="hero-content">
-            <p class="hero-kicker">FITNESS CLUB</p>
+            <p class="hero-kicker">ENIXS JEANS</p>
             <h1>Vista sua<br>melhor versão.</h1>
             <p class="hero-copy">Peças que acompanham o seu ritmo, com qualidade e preço direto da fábrica.</p>
             <a href="#loja" class="btn-primary">Descobrir coleção <span>→</span></a>
@@ -119,7 +119,7 @@
                     {% endif %}
                 </div>
                 <div class="product-info">
-                    <div class="product-brand">FITNESS CLUB</div>
+                    <div class="product-brand">ENIXS JEANS</div>
                     <h3 class="product-name">{{ p.nome }}</h3>
                     <div class="product-colors" aria-label="Cores variadas">Cores variadas</div>
                     {% if p.eh_conjunto and conjuntos_relacionados.get(p.id) %}<div class="product-set-note">Disponível avulso ou em conjunto completo</div>{% endif %}
@@ -166,7 +166,7 @@
         <div class="promise-copy">
             <p class="eyebrow">Por trás da peça</p>
             <h2>Conforto que se sente.<br>Qualidade que permanece.</h2>
-            <p>Produzimos moda fitness para quem se movimenta todos os dias. Escolha seus favoritos e monte seu pedido de atacado.</p>
+            <p>Produzimos moda jeans para quem busca estilo e qualidade. Escolha seus favoritos e monte seu pedido de atacado.</p>
             <a class="text-link" href="#loja">Conheça a coleção <span>→</span></a>
         </div>
     </section>
@@ -207,9 +207,9 @@
 
     <!-- Rodapé -->
     <footer id="sobre" style="text-align: center; padding: 60px 20px; background: #ffffff; margin-top: 40px; border-top: 1px solid var(--border-color);">
-        <h3 style="color: var(--brand-purple); font-weight: 800; letter-spacing: 2px; margin-bottom: 10px;">FITNESS CLUB</h3>
+        <h3 style="color: var(--brand-purple); font-weight: 800; letter-spacing: 2px; margin-bottom: 10px;">ENIXS JEANS</h3>
         <p style="font-size: 11px; color: var(--text-muted); font-weight: 600; letter-spacing: 1px;">FABRICAÇÃO PRÓPRIA | PERNAMBUCO | VENDAS APENAS EM ATACADO</p>
-        <p style="font-size: 10px; color: #888; margin-top: 30px;">© 2026 Fitness Club. Todos os direitos reservados.</p>
+        <p style="font-size: 10px; color: #888; margin-top: 30px;">© 2026 Enixs Jeans. Todos os direitos reservados.</p>
     </footer>
 
     <!-- Gaveta do Carrinho -->

@@ -9,7 +9,7 @@ from sqlalchemy.exc import IntegrityError
 from werkzeug.datastructures import FileStorage
 
 from app import create_app, db
-from app.models import ImportacaoEstoque, Produto, ProdutoImagem
+from app.models import ImportacaoEstoque, Pedido, Produto, ProdutoImagem, Usuario
 from scripts import importar_estoque
 from scripts.importar_estoque import criar_produto_sem_cadastro, ler_inventario, planejar_importacao
 from app.routes import chave_cor, cor_para_hex, imagem_disponivel, nome_cor, validar_arquivos_imagem, variantes_com_cor_hex
@@ -226,6 +226,67 @@ def test_vitrine_filtra_por_categoria_e_agrupa_por_nome(monkeypatch):
         assert 'Top 2 tiras de viés' not in html
         assert 'Legging com bolso' not in html
         assert html.count('class="product-card"') == 1
+
+
+@pytest.mark.parametrize(
+    ('subtotal', 'deve_finalizar'),
+    [(499.99, False), (500.00, True)],
+)
+def test_checkout_exige_subtotal_minimo_de_500_reais(monkeypatch, subtotal, deve_finalizar):
+    monkeypatch.setenv('DATABASE_URL', 'sqlite://')
+    app = create_app()
+    app.config['TESTING'] = True
+
+    with app.app_context():
+        usuario = Usuario(
+            nome='Cliente teste',
+            email=f'checkout-{subtotal}@teste.com',
+            senha='senha',
+            whatsapp='81999999999',
+            cliente_especial=True,
+        )
+        produto = Produto(
+            codigo=f'CHECKOUT-{subtotal}',
+            nome='Produto teste',
+            preco=subtotal,
+            etiqueta='TESTE',
+            imagem_url='',
+        )
+        db.session.add_all([usuario, produto])
+        db.session.flush()
+        pedido = Pedido(
+            usuario_id=usuario.id,
+            status='ABERTO',
+            itens=json.dumps([{
+                'id': produto.id,
+                'nome': produto.nome,
+                'tamanho': 'M',
+                'preco': subtotal,
+                'quantidade': 1,
+            }]),
+            valor_total=subtotal,
+        )
+        db.session.add(pedido)
+        db.session.commit()
+        usuario_id = usuario.id
+        pedido_id = pedido.id
+
+    with app.test_client() as client:
+        with client.session_transaction() as sess:
+            sess['_user_id'] = str(usuario_id)
+            sess['_fresh'] = True
+        resposta = client.post('/checkout-infinitepay', json={'frete': 0})
+
+    dados = resposta.get_json()
+    assert dados['sucesso'] is deve_finalizar
+    with app.app_context():
+        pedido = db.session.get(Pedido, pedido_id)
+        if deve_finalizar:
+            assert pedido.status == 'PAGAMENTO'
+            assert dados['url_whatsapp'].startswith('https://wa.me/')
+        else:
+            assert pedido.status == 'ABERTO'
+            assert 'R$ 500.00' in dados['mensagem']
 
 
 def test_api_cadastro_rejeita_pdf_sem_criar_produto(monkeypatch):

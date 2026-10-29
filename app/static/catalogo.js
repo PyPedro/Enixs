@@ -5,7 +5,7 @@ let galeriaImagemAmpliada = null;
 let imagemOrigemAmpliada = null;
 let indiceImagemAmpliada = 0;
 
-function mostrarAviso(mensagem, titulo = 'Aviso Fitness Club') {
+function mostrarAviso(mensagem, titulo = 'Aviso Enixs Jeans') {
     const modal = document.getElementById('customModal');
     const msgElement = document.getElementById('modalMensagem');
     const tituloElement = document.getElementById('modalTitulo');
