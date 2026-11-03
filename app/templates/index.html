@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=25">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=26">
 </head>
 <body>
 
@@ -64,7 +64,18 @@
     </header>
 
     <!-- Banner Principal -->
-    <section id="inicio" class="hero-section home-hero-section" aria-labelledby="home-hero-title" style="background-image: url('{{ url_for('static', filename=imagens_site.banner_hero) }}');">
+    <section id="inicio" class="hero-section home-hero-section" aria-labelledby="home-hero-title" aria-roledescription="carrossel" aria-label="Campanhas Enixs Jeans">
+        <div class="home-hero-slides" aria-live="off">
+            <div class="home-hero-slide is-active" role="img" aria-label="Campanha principal Enixs Jeans">
+                <img class="home-hero-image" src="{{ url_for('static', filename=imagens_site.banner_hero) }}" alt="" fetchpriority="high">
+            </div>
+            <div class="home-hero-slide" role="img" aria-label="Campanha da coleção casual" aria-hidden="true">
+                <img class="home-hero-image" src="{{ url_for('static', filename=imagens_site.banner_lounge) }}" alt="">
+            </div>
+            <div class="home-hero-slide" role="img" aria-label="Campanha da coleção em destaque" aria-hidden="true">
+                <img class="home-hero-image" src="{{ url_for('static', filename=imagens_site.banner_macaquinho) }}" alt="">
+            </div>
+        </div>
         <div class="hero-overlay"></div>
         <div class="hero-content home-hero-content">
             <h1 id="home-hero-title">Moda jeans<br>feita para vender.</h1>
@@ -73,6 +84,15 @@
                 <a href="#loja" class="hero-cta hero-cta-primary">Ver Coleção Atacado <span aria-hidden="true">→</span></a>
                 <a href="#" class="hero-cta hero-cta-secondary" onclick="abrirAuthModal(); alternarAbaAuth('cadastro'); return false;">Cadastrar como Lojista</a>
             </div>
+        </div>
+        <div class="home-hero-controls" aria-label="Controles das campanhas">
+            <button type="button" class="home-hero-arrow home-hero-prev" aria-label="Campanha anterior">
+                <span aria-hidden="true">←</span>
+            </button>
+            <div class="home-hero-pagination" aria-label="Selecionar campanha"></div>
+            <button type="button" class="home-hero-arrow home-hero-next" aria-label="Próxima campanha">
+                <span aria-hidden="true">→</span>
+            </button>
         </div>
     </section>
 
@@ -325,5 +345,6 @@
         const usuarioLogado = {{ 'true' if usuario_logado else 'false' }};
     </script>
     <script src="{{ url_for('static', filename='script.js') }}?v=17"></script>
+    <script src="{{ url_for('static', filename='hero-slider.js') }}?v=1" defer></script>
 </body>
 </html>

@@ -12,11 +12,18 @@ def test_homepage_hero_destaca_atacado_e_cadastro_lojista(monkeypatch):
     assert resposta.status_code == 200
     html = resposta.get_data(as_text=True)
     assert 'class="hero-section home-hero-section"' in html
+    assert 'aria-label="Campanha principal Enixs Jeans"' in html
+    assert 'aria-label="Campanha da coleção casual"' in html
+    assert 'aria-label="Campanha da coleção em destaque"' in html
+    assert 'home-hero-prev' in html
+    assert 'home-hero-next' in html
+    assert 'home-hero-pagination' in html
     assert 'Moda jeans<br>feita para vender.' in html
     assert 'Qualidade direto da fábrica, grade completa e condições especiais para lojistas.' in html
     assert 'Ver Coleção Atacado' in html
     assert "alternarAbaAuth('cadastro')" in html
     assert 'Cadastrar como Lojista' in html
+    assert 'hero-slider.js' in html
 
 
 def test_catalogo_e_publico_e_ignora_estoque(monkeypatch):
