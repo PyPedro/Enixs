@@ -271,7 +271,52 @@ def test_rota_importacao_estoque_encaminha_csv_e_ignora_colunas_extras(monkeypat
         ]
 
 
-def test_rota_importacao_registra_erro_tecnico_de_linha_txt(monkeypatch, caplog):
+def test_rota_lote_reconhece_csv_com_extensao_txt_pelo_cabecalho(monkeypatch):
+    monkeypatch.setenv('DATABASE_URL', 'sqlite://')
+    app = create_app()
+    app.config['TESTING'] = True
+    campos = [
+        'ID', 'Nome', 'Preço', 'Descrição', 'Código', 'Categoria',
+        'Embalagem-Largura', 'Embalagem-Altura', 'Embalagem-Comprimento',
+        'Embalagem-Peso', 'Embalagem-Transporte', 'Estoque-Saldo',
+        'Variacao1', 'Variavel1',
+    ]
+    linhas = [{
+        'ID': '66e04b0e5e95e672b5635deb3',
+        'Nome': 'Calça jeans masculina RF1199DPS',
+        'Preço': '62.00',
+        'Descrição': '<p>Calça jeans linha premium</p>',
+        'Código': '1199DPS',
+        'Categoria': 'Jeans masculino',
+        'Embalagem-Largura': '35',
+        'Embalagem-Altura': '3',
+        'Embalagem-Comprimento': '32',
+        'Embalagem-Peso': '1.00',
+        'Embalagem-Transporte': 'caixa',
+        'Estoque-Saldo': '76',
+        'Variacao1': 'GRADS',
+        'Variavel1': '40',
+    }]
+
+    with app.test_client() as client:
+        with client.session_transaction() as sess:
+            sess['admin_logado'] = True
+        resposta = client.post(
+            '/api/admin/importar-estoque',
+            data={'arquivo': (_criar_csv(linhas, campos=campos), 'produtos.txt')},
+            content_type='multipart/form-data',
+        )
+
+    assert resposta.status_code == 200
+    assert resposta.get_json()['sucesso'] is True
+    with app.app_context():
+        produto = Produto.query.filter_by(codigo='1199DPS').one()
+        assert produto.nome == 'Calça jeans masculina RF1199DPS'
+        assert produto.preco == 62
+        assert json.loads(produto.grade) == [{'nome': '40', 'estoque': 76, 'preco': 62}]
+
+
+def test_rota_lote_reconhece_csv_com_extensao_txt_e_cabecalho_minimo(monkeypatch):
     monkeypatch.setenv('DATABASE_URL', 'sqlite://')
     app = create_app()
     app.config['TESTING'] = True
@@ -293,10 +338,12 @@ def test_rota_importacao_registra_erro_tecnico_de_linha_txt(monkeypatch, caplog)
             content_type='multipart/form-data',
         )
 
-    assert resposta.status_code == 500
-    assert 'Erro técnico ao importar arquivo de estoque.' in caplog.text
-    assert 'linha de estoque invalida' in caplog.text
-    assert 'Produto de teste;10.00;007;5' in caplog.text
+    assert resposta.status_code == 200
+    assert resposta.get_json()['sucesso'] is True
+    with app.app_context():
+        produto = Produto.query.filter_by(codigo='007').one()
+        assert produto.nome == 'Produto de teste'
+        assert json.loads(produto.grade) == [{'nome': 'Único', 'estoque': 5, 'preco': 10}]
 
 
 def test_formulario_de_importacao_csv_no_painel(monkeypatch):

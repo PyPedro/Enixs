@@ -821,7 +821,27 @@ def api_admin_importar_estoque():
     if arquivo is None or not getattr(arquivo, 'filename', None):
         return jsonify({"sucesso": False, "mensagem": "Selecione um arquivo .txt para importar."}), 400
 
-    if arquivo.filename.casefold().endswith('.csv'):
+    eh_csv = arquivo.filename.casefold().endswith('.csv')
+    if not eh_csv:
+        inicio_arquivo = arquivo.stream.read(8192)
+        arquivo.stream.seek(0)
+        try:
+            inicio_texto = inicio_arquivo.decode('utf-8-sig')
+        except UnicodeDecodeError:
+            inicio_texto = inicio_arquivo.decode('cp1252')
+        try:
+            dialeto_csv = csv.Sniffer().sniff(inicio_texto, delimiters=';,\t')
+            cabecalhos = next(csv.reader(io.StringIO(inicio_texto), dialect=dialeto_csv), [])
+        except csv.Error:
+            cabecalhos = []
+        cabecalhos_normalizados = {(campo or '').strip().casefold() for campo in cabecalhos}
+        eh_csv = (
+            {'nome', 'estoque-saldo'}.issubset(cabecalhos_normalizados)
+            and bool(cabecalhos_normalizados & {'preço', 'preco'})
+            and bool(cabecalhos_normalizados & {'código', 'codigo', 'referência', 'referencia'})
+        )
+
+    if eh_csv:
         return importar_csv(resposta_json=True)
 
     try:
