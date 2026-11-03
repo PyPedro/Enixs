@@ -509,6 +509,27 @@ def admin_dashboard():
     if not session.get('admin_logado'): return redirect(url_for('main.admin_login'))
     return render_template('admin.html')
 
+@main_bp.route('/admin/modelo-csv')
+def baixar_modelo_csv():
+    if not session.get('admin_logado'):
+        return redirect(url_for('main.admin_login'))
+
+    buffer = io.StringIO(newline='')
+    escritor = csv.writer(buffer, delimiter=';')
+    escritor.writerow([
+        'Nome', 'Preço', 'Descrição', 'Código', 'Categoria',
+        'Embalagem-Largura', 'Embalagem-Altura', 'Embalagem-Comprimento',
+        'Embalagem-Peso', 'Embalagem-Transporte', 'Estoque-Saldo',
+        'Variacao1', 'Variavel1', 'Variacao2', 'Variavel2',
+        'Variacao3', 'Variavel3', 'Variacao4', 'Variavel4',
+    ])
+    conteudo = ('\ufeff' + buffer.getvalue()).encode('utf-8')
+    return current_app.response_class(
+        conteudo,
+        mimetype='text/csv; charset=utf-8',
+        headers={'Content-Disposition': 'attachment; filename="modelo-importacao-estoque.csv"'},
+    )
+
 @main_bp.route('/admin/importar-csv', methods=['POST'])
 def importar_csv(resposta_json=None):
     if resposta_json is None:
@@ -537,7 +558,30 @@ def importar_csv(resposta_json=None):
             raise ValueError('Não foi possível identificar o separador do CSV.') from erro
         leitor = csv.DictReader(io.StringIO(conteudo), dialect=dialeto)
         if leitor.fieldnames:
-            leitor.fieldnames = [campo.strip() for campo in leitor.fieldnames]
+            aliases_colunas = {
+                'nome': 'Nome',
+                'preco': 'Preço',
+                'preço': 'Preço',
+                'referencia': 'referencia',
+                'referência': 'referencia',
+                'codigo': 'referencia',
+                'código': 'referencia',
+                'estoque-saldo': 'Estoque-Saldo',
+                **{
+                    f'{variacao}{indice}': f'{nome_canonico}{indice}'
+                    for indice in range(1, 5)
+                    for variacao, nome_canonico in (
+                        ('variacao', 'Variacao'),
+                        ('variação', 'Variacao'),
+                        ('variavel', 'Variavel'),
+                        ('variável', 'Variavel'),
+                    )
+                },
+            }
+            leitor.fieldnames = [
+                aliases_colunas.get((campo or '').strip().casefold(), (campo or '').strip())
+                for campo in leitor.fieldnames
+            ]
         colunas_obrigatorias = {'Nome', 'Preço', 'referencia', 'Estoque-Saldo'}
         if leitor.fieldnames is None or not colunas_obrigatorias.issubset(leitor.fieldnames):
             raise ValueError('O CSV não contém as colunas esperadas de produtos.')

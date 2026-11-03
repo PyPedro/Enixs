@@ -102,6 +102,74 @@ def test_importa_formato_exportado_completo_com_colunas_extras_e_csv_excel(monke
         assert json.loads(produto.grade) == [{'nome': '40', 'estoque': 77, 'preco': 62}]
 
 
+def test_importa_formato_com_codigo_da_planilha_de_estoque(monkeypatch):
+    monkeypatch.setenv('DATABASE_URL', 'sqlite://')
+    app = create_app()
+    app.config['TESTING'] = True
+    campos = [
+        'Nome', 'Preço', 'Descrição', 'Código', 'Categoria',
+        'Embalagem-Largura', 'Embalagem-Altura', 'Embalagem-Comprimento',
+        'Embalagem-Peso', 'Embalagem-Transporte', 'Estoque-Saldo',
+        'Variacao1', 'Variavel1', 'Variacao2', 'Variavel2',
+    ]
+    linhas = [
+        {
+            'Nome': 'Calça jeans', 'Preço': '62,00', 'Descrição': '<p>Calça azul</p>',
+            'Código': 'JEANS-001', 'Categoria': 'Jeans masculino',
+            'Embalagem-Largura': '35', 'Embalagem-Altura': '3',
+            'Embalagem-Comprimento': '32', 'Embalagem-Peso': '1.00',
+            'Embalagem-Transporte': 'caixa', 'Estoque-Saldo': '8',
+            'Variacao1': 'GRADS', 'Variavel1': '40',
+            'Variacao2': 'Cores disponíveis', 'Variavel2': 'BEGE',
+        },
+        {
+            'Nome': 'Calça jeans', 'Preço': '62,00', 'Descrição': '<p>Calça preta</p>',
+            'Código': 'JEANS-001', 'Categoria': 'Jeans masculino',
+            'Embalagem-Largura': '35', 'Embalagem-Altura': '3',
+            'Embalagem-Comprimento': '32', 'Embalagem-Peso': '1.00',
+            'Embalagem-Transporte': 'caixa', 'Estoque-Saldo': '5',
+            'Variacao1': 'GRADS', 'Variavel1': '42',
+            'Variacao2': 'Cores disponíveis', 'Variavel2': 'PRETO',
+        },
+    ]
+
+    with app.test_client() as client:
+        with client.session_transaction() as sess:
+            sess['admin_logado'] = True
+        resposta = client.post(
+            '/admin/importar-csv?formato=json',
+            data={'arquivo': (_criar_csv(linhas, campos=campos), 'estoque.csv')},
+            content_type='multipart/form-data',
+        )
+
+    assert resposta.status_code == 200
+    assert resposta.get_json()['sucesso'] is True
+    with app.app_context():
+        produto = Produto.query.filter_by(codigo='JEANS-001').one()
+        assert produto.preco == 62
+        assert json.loads(produto.cores) == ['BEGE', 'PRETO']
+        assert json.loads(produto.variantes) == [
+            {'cor': 'BEGE', 'tamanhos': [{'nome': '40', 'estoque': 8, 'preco': 62}]},
+            {'cor': 'PRETO', 'tamanhos': [{'nome': '42', 'estoque': 5, 'preco': 62}]},
+        ]
+
+
+def test_baixar_modelo_csv_no_painel(monkeypatch):
+    monkeypatch.setenv('DATABASE_URL', 'sqlite://')
+    app = create_app()
+
+    with app.test_client() as client:
+        with client.session_transaction() as sess:
+            sess['admin_logado'] = True
+        resposta = client.get('/admin/modelo-csv')
+
+    conteudo = resposta.get_data(as_text=True)
+    assert resposta.status_code == 200
+    assert resposta.headers['Content-Disposition'] == 'attachment; filename="modelo-importacao-estoque.csv"'
+    assert conteudo.startswith('\ufeffNome;Preço;Descrição;Código;Categoria;')
+    assert 'Estoque-Saldo;Variacao1;Variavel1;Variacao2;Variavel2' in conteudo
+
+
 def test_importar_csv_falha_sem_gravar_se_houver_dado_invalido(monkeypatch):
     monkeypatch.setenv('DATABASE_URL', 'sqlite://')
     app = create_app()
@@ -243,6 +311,8 @@ def test_formulario_de_importacao_csv_no_painel(monkeypatch):
     assert 'action="/admin/importar-csv"' in html
     assert 'enctype="multipart/form-data"' in html
     assert 'type="file" accept=".csv" name="arquivo" required' in html
+    assert 'href="/admin/modelo-csv"' in html
+    assert 'Baixar modelo CSV' in html
     assert 'Importar CSV' in html
     assert "arquivo.name.toLocaleLowerCase().endsWith('.csv')" in html
     assert "'/admin/importar-csv?formato=json' : '/api/admin/importar-estoque'" in html

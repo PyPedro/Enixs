@@ -323,7 +323,8 @@
         </div>
         <div class="mb-5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
             <h3 class="mb-1 text-sm font-semibold text-slate-900">Importar produtos por CSV</h3>
-            <p class="mb-4 text-sm text-slate-600">Selecione o arquivo CSV de produtos para importar o catálogo e o estoque.</p>
+            <p class="mb-4 text-sm text-slate-600">Selecione o arquivo CSV de produtos para importar o catálogo e o estoque. Cada linha pode representar uma combinação de tamanho e cor.</p>
+            <a href="{{ url_for('main.baixar_modelo_csv') }}" class="mb-4 inline-flex text-sm font-semibold text-blue-700 underline">Baixar modelo CSV</a>
             <form action="{{ url_for('main.importar_csv') }}" method="POST" enctype="multipart/form-data" class="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
                 <input type="file" accept=".csv" name="arquivo" required class="block w-full max-w-xl rounded-lg border border-slate-300 bg-white text-sm text-slate-700 file:mr-4 file:rounded-md file:border-0 file:bg-slate-100 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-slate-700 hover:file:bg-slate-200">
                 <button type="submit" class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">Importar CSV</button>
