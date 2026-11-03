@@ -165,6 +165,8 @@ def test_baixar_modelo_csv_no_painel(monkeypatch):
 
     conteudo = resposta.get_data(as_text=True)
     assert resposta.status_code == 200
+    assert resposta.mimetype == 'text/csv'
+    assert resposta.headers['Content-Disposition'].startswith('attachment;')
     assert resposta.headers['Content-Disposition'] == 'attachment; filename="modelo-importacao-estoque.csv"'
     assert conteudo.startswith('\ufeffNome;Preço;Descrição;Código;Categoria;')
     assert 'Estoque-Saldo;Variacao1;Variavel1;Variacao2;Variavel2' in conteudo
@@ -312,6 +314,7 @@ def test_formulario_de_importacao_csv_no_painel(monkeypatch):
     assert 'enctype="multipart/form-data"' in html
     assert 'type="file" accept=".csv" name="arquivo" required' in html
     assert 'href="/admin/modelo-csv"' in html
+    assert 'download="modelo-importacao-estoque.csv"' in html
     assert 'Baixar modelo CSV' in html
     assert 'Importar CSV' in html
     assert "arquivo.name.toLocaleLowerCase().endsWith('.csv')" in html
