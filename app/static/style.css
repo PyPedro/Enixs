@@ -718,6 +718,65 @@ body { background: var(--bg-main); font-family: 'DM Sans', sans-serif; }
 .hero-section { height: min(690px, 78vw); min-height: 510px; background-position: center 32%; }
 .hero-overlay { background: linear-gradient(90deg, rgba(12,12,10,.72), rgba(12,12,10,.08) 70%), linear-gradient(0deg, rgba(12,12,10,.25), transparent 50%); }
 .hero-content { margin-left: clamp(26px, 9vw, 140px); max-width: 430px; padding: 0; }
+.home-hero-section {
+    height: 100vh;
+    height: 100svh;
+    min-height: 620px;
+    background-color: #242320;
+    background-position: center 38%;
+}
+.home-hero-section .hero-overlay {
+    background: linear-gradient(90deg, rgba(18, 18, 16, .78) 0%, rgba(18, 18, 16, .42) 48%, rgba(18, 18, 16, .12) 100%), linear-gradient(0deg, rgba(18, 18, 16, .25), transparent 45%);
+}
+.home-hero-content {
+    width: min(590px, calc(100% - 48px));
+    max-width: 590px;
+    margin-left: clamp(28px, 11vw, 160px);
+}
+.home-hero-section .home-hero-content h1 {
+    max-width: 590px;
+    margin-bottom: 22px;
+    font-size: clamp(48px, 6.4vw, 88px);
+    line-height: .98;
+    letter-spacing: -3px;
+    text-wrap: balance;
+}
+.home-hero-content .hero-copy {
+    max-width: 410px;
+    margin-bottom: 32px;
+    color: rgba(255, 255, 255, .86);
+    font-size: clamp(14px, 1.3vw, 17px);
+    line-height: 1.65;
+}
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+.hero-cta {
+    display: inline-flex;
+    min-height: 50px;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 0 22px;
+    border: 1px solid #f8f5ef;
+    color: #f8f5ef;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.1px;
+    text-align: center;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: background .2s ease, color .2s ease, transform .2s ease;
+}
+.hero-cta:hover { transform: translateY(-2px); }
+.hero-cta-primary { background: #f8f5ef; color: #171715; }
+.hero-cta-primary:hover { background: #fff; }
+.hero-cta-secondary { background: rgba(20, 20, 18, .18); }
+.hero-cta-secondary:hover { background: rgba(255, 255, 255, .12); }
+.hero-cta:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
 .hero-kicker, .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 18px; }
 .hero-content h1 { font-family: 'Manrope', sans-serif; font-size: clamp(38px, 5.5vw, 75px); font-weight: 700; line-height: .98; letter-spacing: -1.5px; margin-bottom: 20px; }
 .hero-copy { max-width: 300px; font-size: 13px; line-height: 1.55; color: rgba(255,255,255,.86); margin-bottom: 28px; }
@@ -789,6 +848,34 @@ footer p { color: #bcb7ae !important; }
     .hero-section { height: 620px; min-height: 0; background-position: 58% center; }
     .hero-content { margin: 88px 26px 0; align-self: center; }
     .hero-content h1 { font-size: 42px; }
+    .home-hero-section {
+        height: 100vh;
+        height: 100svh;
+        min-height: 640px;
+        background-position: 58% center;
+    }
+    .home-hero-section .hero-overlay {
+        background: linear-gradient(90deg, rgba(18, 18, 16, .72), rgba(18, 18, 16, .3) 100%), linear-gradient(0deg, rgba(18, 18, 16, .35), transparent 55%);
+    }
+    .home-hero-content {
+        width: calc(100% - 40px);
+        margin: 72px 20px 0;
+        padding: 0;
+    }
+    .home-hero-section .home-hero-content h1 {
+        max-width: 480px;
+        margin-bottom: 18px;
+        font-size: clamp(42px, 11vw, 64px);
+        letter-spacing: -2px;
+    }
+    .home-hero-content .hero-copy { max-width: 360px; margin-bottom: 26px; font-size: 14px; }
+    .hero-actions { align-items: stretch; gap: 10px; }
+    .hero-cta { min-height: 48px; padding: 0 16px; }
+}
+
+@media (max-width: 480px) {
+    .hero-actions { flex-direction: column; align-items: flex-start; }
+    .hero-cta { width: min(100%, 320px); }
     .quick-categories { grid-template-columns: repeat(2, 1fr); padding: 0 14px; margin-top: -24px; gap: 6px; }
     .quick-categories a { min-height: 54px; padding: 18px 12px; font-size: 8px; }
     .quick-categories a:last-child { grid-column: span 2; }

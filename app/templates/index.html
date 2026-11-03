@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=24">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=25">
 </head>
 <body>
 
@@ -64,13 +64,15 @@
     </header>
 
     <!-- Banner Principal -->
-    <section id="inicio" class="hero-section" style="background-image: url('{{ url_for('static', filename=imagens_site.banner_hero) }}');">
+    <section id="inicio" class="hero-section home-hero-section" aria-labelledby="home-hero-title" style="background-image: url('{{ url_for('static', filename=imagens_site.banner_hero) }}');">
         <div class="hero-overlay"></div>
-        <div class="hero-content">
-            <p class="hero-kicker">ENIXS JEANS</p>
-            <h1>Vista sua<br>melhor versão.</h1>
-            <p class="hero-copy">Peças que acompanham o seu ritmo, com qualidade e preço direto da fábrica.</p>
-            <a href="#loja" class="btn-primary">Descobrir coleção <span>→</span></a>
+        <div class="hero-content home-hero-content">
+            <h1 id="home-hero-title">Moda jeans<br>feita para vender.</h1>
+            <p class="hero-copy">Qualidade direto da fábrica, grade completa e condições especiais para lojistas.</p>
+            <div class="hero-actions">
+                <a href="#loja" class="hero-cta hero-cta-primary">Ver Coleção Atacado <span aria-hidden="true">→</span></a>
+                <a href="#" class="hero-cta hero-cta-secondary" onclick="abrirAuthModal(); alternarAbaAuth('cadastro'); return false;">Cadastrar como Lojista</a>
+            </div>
         </div>
     </section>
 
